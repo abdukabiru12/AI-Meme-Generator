@@ -2,8 +2,8 @@ import { GoogleGenAI, Modality } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
-const getPromptForStyle = (style: string): string => {
-  const basePrompt = "You are a creative AI image editor. Your task is to transform the provided user image based on a specific theme. Do not add any text or logos. Only return the modified image as your response.";
+const getPromptForStyle = (style: string, userNote: string): string => {
+  const basePrompt = "You are a creative AI image editor. Your task is to transform the provided user image based on a specific theme. If the user provides a text note, you MUST creatively and seamlessly integrate that text into the image. The text should look like a natural part of the scene (e.g., graffiti, a neon sign, text on a t-shirt, a computer screen message), fitting the chosen theme. If no text note is provided, just transform the image. Do not add any text if none is provided. Only return the modified image as your response.";
   
   const stylePrompts: { [key: string]: string } = {
     fun: "Theme: Fun. Make the image funnier and more exaggerated, in the style of a classic internet meme. Amplify expressions, add playful elements, or use a vibrant, comical color palette.",
@@ -16,17 +16,24 @@ const getPromptForStyle = (style: string): string => {
 
   const specificPrompt = stylePrompts[style] || stylePrompts.fun; // Default to 'fun' if style is unknown
   
-  return `${basePrompt}\n\n${specificPrompt}`;
+  let finalPrompt = `${basePrompt}\n\n${specificPrompt}`;
+  
+  if (userNote.trim()) {
+    finalPrompt += `\n\nUser's text note to integrate: "${userNote.trim()}"`;
+  }
+  
+  return finalPrompt;
 }
 
 
 export async function createMeme(
   imageData: { base64: string; mimeType: string },
   style: string,
+  userNote: string
 ): Promise<string> {
   const model = 'gemini-2.5-flash-image-preview';
 
-  const prompt = getPromptForStyle(style);
+  const prompt = getPromptForStyle(style, userNote);
 
   const imagePart = {
     inlineData: {

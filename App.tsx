@@ -36,6 +36,7 @@ const App: React.FC = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<string>(memeStyles[0].id);
+  const [userNote, setUserNote] = useState<string>('');
   
   const [generatedMemeUrl, setGeneratedMemeUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -64,7 +65,7 @@ const App: React.FC = () => {
 
     try {
       const imageData = await fileToBase64(imageFile);
-      const memeBase64 = await createMeme(imageData, selectedStyle);
+      const memeBase64 = await createMeme(imageData, selectedStyle, userNote);
       setGeneratedMemeUrl(`data:image/png;base64,${memeBase64}`);
     } catch (err) {
       console.error(err);
@@ -72,7 +73,7 @@ const App: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [imageFile, selectedStyle]);
+  }, [imageFile, selectedStyle, userNote]);
   
   const isButtonDisabled = !imageFile || isLoading;
 
@@ -90,6 +91,21 @@ const App: React.FC = () => {
               selectedStyle={selectedStyle}
               onStyleChange={setSelectedStyle}
             />
+            
+            <div>
+              <label htmlFor="user-note" className="block text-sm font-medium text-gray-300 mb-2">
+                Add a Note (optional)
+              </label>
+              <input
+                type="text"
+                id="user-note"
+                value={userNote}
+                onChange={(e) => setUserNote(e.target.value)}
+                placeholder="e.g., a slogan, @yourhandle"
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                aria-label="Add a note to the meme"
+              />
+            </div>
 
             <button
               onClick={handleGenerateMeme}
