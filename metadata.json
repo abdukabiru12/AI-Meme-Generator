@@ -1,0 +1,5 @@
+{
+  "name": "AI Meme Generator",
+  "description": "Upload an image and provide some text to let AI generate a custom meme for you. Add your slogan, bullish notes, or social media handles to create viral content.",
+  "requestFramePermissions": []
+}
